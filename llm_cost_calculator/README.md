@@ -96,11 +96,12 @@ main.py
 
 The application can be run using:
 ```bash
-streamlit run llm_costs_framework/main.py
+streamlit run llm_cost_calculator/main.py
 ```
 
 Or imported as a package:
+
 ```python
-from llm_costs_framework.vram_calculator import calculate_min_vram_required
-from llm_costs_framework.cost_calculator import calculate_paid_api_costs
+from llm_cost_calculator.vram_calculator import calculate_min_vram_required
+from llm_cost_calculator.cost_calculator import calculate_paid_api_costs
 ```

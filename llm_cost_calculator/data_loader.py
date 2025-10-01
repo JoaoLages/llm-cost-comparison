@@ -16,7 +16,7 @@ def load_spreadsheet() -> dict[str, pd.DataFrame]:
         Dictionary mapping sheet names to DataFrames
     """
     return pd.read_excel(
-        "llm_costs_framework/LLM Costs (September 2025).xlsx",
+        "llm_cost_calculator/LLM Costs (September 2025).xlsx",
         sheet_name=None
     )
 

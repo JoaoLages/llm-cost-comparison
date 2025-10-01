@@ -3,10 +3,10 @@
 import pandas as pd
 import streamlit as st
 
-from llm_costs_framework.utils import get_pricing_policies
-from llm_costs_framework.vram_calculator import calculate_min_vram_required
-from llm_costs_framework.data_loader import prepare_performance_scores, prepare_pricing_dataframe
-from llm_costs_framework.cost_calculator import calculate_paid_api_costs, calculate_opensource_costs
+from llm_cost_calculator.utils import get_pricing_policies
+from llm_cost_calculator.vram_calculator import calculate_min_vram_required
+from llm_cost_calculator.data_loader import prepare_performance_scores, prepare_pricing_dataframe
+from llm_cost_calculator.cost_calculator import calculate_paid_api_costs, calculate_opensource_costs
 
 
 def always_on_hosting_page(sheet_name_to_df: dict[str, pd.DataFrame]):

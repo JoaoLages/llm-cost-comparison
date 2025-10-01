@@ -3,8 +3,8 @@
 import pandas as pd
 from typing import Optional, Literal
 
-from llm_costs_framework.vram_calculator import calculate_min_vram
-from llm_costs_framework.throughput_estimator import estimate_tokens_per_sec, calculate_execution_time
+from llm_cost_calculator.vram_calculator import calculate_min_vram
+from llm_cost_calculator.throughput_estimator import estimate_tokens_per_sec, calculate_execution_time
 
 
 def calculate_paid_api_costs(
