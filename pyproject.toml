@@ -1,5 +1,5 @@
 [project]
-name = "llm-costs-framework"
+name = "llm-cost-calculator"
 version = "0.1.0"
 description = ""
 authors = [
