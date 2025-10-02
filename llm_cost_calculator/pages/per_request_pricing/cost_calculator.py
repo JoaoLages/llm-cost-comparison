@@ -3,8 +3,9 @@
 import pandas as pd
 from typing import Optional, Literal
 
-from llm_cost_calculator.vram_calculator import calculate_min_vram
-from llm_cost_calculator.throughput_estimator import estimate_tokens_per_sec, calculate_execution_time
+from llm_cost_calculator.common.vram_calculator import calculate_min_vram
+from llm_cost_calculator.common.utils import PRICING_MODEL_MAPPING
+from llm_cost_calculator.pages.per_request_pricing.throughput_estimator import estimate_tokens_per_sec, calculate_execution_time
 
 
 def calculate_paid_api_costs(
@@ -12,7 +13,8 @@ def calculate_paid_api_costs(
     num_requests: int,
     input_tokens: int,
     output_tokens: int,
-    lmarena_scores: dict
+    lmarena_scores: dict,
+    categories: dict
 ) -> list[dict]:
     """
     Calculate costs for paid API models.
@@ -23,6 +25,7 @@ def calculate_paid_api_costs(
         input_tokens: Input tokens per request
         output_tokens: Output tokens per request
         lmarena_scores: Mapping of model names to LMArena scores
+        categories: Mapping of model names to categories
 
     Returns:
         List of result dictionaries
@@ -39,7 +42,8 @@ def calculate_paid_api_costs(
                 "Provider": row["Provider"],
                 "Model": row["Model"],
                 "Total Cost ($)": total_cost,
-                "LMArena Score": lmarena_scores.get(row["Model"], "N/A")
+                "LMArena Score": lmarena_scores.get(row["Model"], "N/A"),
+                "Category": categories.get(row["Model"], "N/A")
             })
 
     return results
@@ -128,6 +132,7 @@ def find_all_gpu_configs(
     price_column: str,
     pricing_policy: str,
     lmarena_scores: dict,
+    categories: dict,
     precision: Literal["FP8", "FP16"] = "FP8"
 ) -> list[dict]:
     """
@@ -143,19 +148,15 @@ def find_all_gpu_configs(
         price_column: Name of the price column to use
         pricing_policy: Name of the pricing policy (e.g., "On-Demand", "Spot")
         lmarena_scores: Mapping of model names to LMArena scores
+        categories: Mapping of model names to categories
         precision: Model precision ("FP8" or "FP16")
 
     Returns:
         List of dictionaries with all valid configurations
     """
     # Extract model parameters
-    if precision == "FP8":
-        model_vram = model_row["Model VRAM in FP8"]
-        bytes_per_param = 1
-    else:  # FP16
-        model_vram = model_row["Model VRAM in FP16"]
-        bytes_per_param = 2
-
+    model_vram_fp8 = model_row["Model VRAM in FP8"]
+    model_vram_fp16 = model_row["Model VRAM in FP16"]
     num_layers = model_row["Number layers"]
     hidden_dim = model_row["Hidden dimension"]
     num_params = model_row.get("Number of parameters (B)", 7)
@@ -175,8 +176,9 @@ def find_all_gpu_configs(
         max_batch_size = 1
         for batch_size in range(1, num_requests + 1):
             vram_needed = calculate_min_vram(
-                model_vram, input_tokens, output_tokens,
-                num_layers, hidden_dim, bytes_per_param, batch_size
+                model_vram_fp8, model_vram_fp16, precision,
+                input_tokens, output_tokens,
+                num_layers, hidden_dim, batch_size
             )
             if vram_needed <= gpu_vram:
                 max_batch_size = batch_size
@@ -185,8 +187,9 @@ def find_all_gpu_configs(
 
         # Check if GPU can fit at least 1 sample
         vram_for_one = calculate_min_vram(
-            model_vram, input_tokens, output_tokens,
-            num_layers, hidden_dim, bytes_per_param, batch_size=1
+            model_vram_fp8, model_vram_fp16, precision,
+            input_tokens, output_tokens,
+            num_layers, hidden_dim, batch_size=1
         )
         if vram_for_one > gpu_vram:
             continue
@@ -231,6 +234,7 @@ def find_all_gpu_configs(
             "Model": model_name,
             "Total Cost ($)": total_cost,
             "LMArena Score": lmarena_scores.get(model_name, "N/A"),
+            "Category": categories.get(model_name, "N/A"),
             "Execution Hours": round(execution_hours, 2),
             "Billable Hours": round(billable_hours, 2),
             "Pricing Policy": pricing_policy,
@@ -247,6 +251,7 @@ def calculate_opensource_costs(
     input_tokens: int,
     output_tokens: int,
     lmarena_scores: dict,
+    categories: dict,
     precision: Literal["FP8", "FP16"] = "FP8"
 ) -> list[dict]:
     """
@@ -259,6 +264,7 @@ def calculate_opensource_costs(
         input_tokens: Input tokens per request
         output_tokens: Output tokens per request
         lmarena_scores: Mapping of model names to LMArena scores
+        categories: Mapping of model names to categories
         precision: Model precision ("FP8" or "FP16")
 
     Returns:
@@ -269,12 +275,13 @@ def calculate_opensource_costs(
     pricing_columns = [
         ("On-Demand Price/hr ($)", "On-Demand"),
         ("Spot Price/hr ($)", "Spot"),
-        ("Spot Price/month ($)", "Spot"),  # Same policy, just monthly price format
-        ("Regular Provisioning Model (per month)\nNo subscription", "1-Month Subscription"),
-        ("Regular Provisioning Model (per month)\n1 year subscription", "1-Year Subscription"),
-        ("Regular Provisioning Model (per month)\n3 year subscription", "3-Year Subscription"),
-        ("Spot Provisioning Model (per month)", "1-Month Subscription"),  # Spot provisioning = monthly spot
     ]
+
+    # Add monthly pricing columns using the shared mapping
+    for policy_name, col_list in PRICING_MODEL_MAPPING.items():
+        # Add each column in the list
+        for col in col_list:
+            pricing_columns.append((col, policy_name))
 
     # Determine which VRAM column to check
     vram_column = f"Model VRAM in {precision}"
@@ -298,7 +305,7 @@ def calculate_opensource_costs(
             configs = find_all_gpu_configs(
                 model_row, model_name, gpu_pricing_df,
                 num_requests, input_tokens, output_tokens,
-                price_col, pricing_policy, lmarena_scores, precision
+                price_col, pricing_policy, lmarena_scores, categories, precision
             )
 
             results.extend(configs)
