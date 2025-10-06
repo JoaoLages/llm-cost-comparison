@@ -38,13 +38,15 @@ def main():
     # Page selection using radio buttons
     page = st.sidebar.radio(
         "Select Page",
-        ["Always-on Hosting", "Per-Request Pricing"]
+        ["Per-Request Pricing", "Always-on Hosting",]
     )
 
     if page == "Always-on Hosting":
         always_on_hosting_page(sheet_name_to_df)
-    else:
+    elif page == "Per-Request Pricing":
         per_request_pricing_page(sheet_name_to_df)
+    else:
+        st.error("Invalid page selection.")
 
 
 if __name__ == "__main__":
