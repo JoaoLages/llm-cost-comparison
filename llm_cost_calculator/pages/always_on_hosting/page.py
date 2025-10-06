@@ -21,6 +21,11 @@ def always_on_hosting_page(sheet_name_to_df: dict[str, pd.DataFrame]):
         "(https://console.cloud.google.com/vertex-ai/provisioned-throughput/price-estimate) "
         "for proprietary model pricing."
     )
+    st.warning(
+        "⚠️ **Important:** These estimates are for **text-only modality** and **contexts under 200K tokens**. "
+        "Actual costs may vary for multimodal inputs or longer contexts."
+    )
+
     st.info(
         get_pricing_policies()
     )

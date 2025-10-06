@@ -26,6 +26,11 @@ def per_request_pricing_page(sheet_name_to_df: dict[str, pd.DataFrame]):
         get_pricing_policies()
     )
 
+    st.warning(
+        "⚠️ **Important:** These estimates are for **text-only modality** and **contexts under 200K tokens**. "
+        "Actual costs may vary for multimodal inputs or longer contexts."
+    )
+
     st.info(
         "**Note on open-source estimates:** Costs are estimated based on throughput benchmarks:\n"
         "- Small models (7B params): ~50-100 tokens/sec\n"
