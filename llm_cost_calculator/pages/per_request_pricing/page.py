@@ -6,7 +6,8 @@ import streamlit as st
 from llm_cost_calculator.common import (
     get_pricing_policies,
     prepare_pricing_dataframe,
-    filter_dataframe
+    filter_dataframe,
+    extract_hyperlinks_from_ods
 )
 from llm_cost_calculator.pages.per_request_pricing.data_utils import prepare_performance_scores
 from llm_cost_calculator.pages.per_request_pricing.cost_calculator import (
@@ -26,7 +27,6 @@ def per_request_pricing_page(sheet_name_to_df: dict[str, pd.DataFrame]):
         "⚠️ **Important:** These estimates are for **text-only modality** and **contexts under 200K tokens**. "
         "Actual costs may vary for multimodal inputs or longer contexts."
     )
-
     st.info(
         get_pricing_policies()
     )
@@ -68,6 +68,9 @@ def per_request_pricing_page(sheet_name_to_df: dict[str, pd.DataFrame]):
     opensource_df = sheet_name_to_df["OpenSource-LLMs"].copy()
     gpu_pricing_df = sheet_name_to_df["GPU pricing comparison"].copy()
     performance_df = sheet_name_to_df["Performance comparison"].copy()
+
+    # Extract hyperlinks from ODS file
+    hyperlinks = extract_hyperlinks_from_ods()
 
     # Prepare performance scores and categories
     lmarena_scores, categories = prepare_performance_scores(performance_df)
@@ -152,6 +155,12 @@ def per_request_pricing_page(sheet_name_to_df: dict[str, pd.DataFrame]):
         # Apply filters
         opensource_df = filter_dataframe(opensource_df, key_prefix="opensource")
 
+        # Replace model names with URLs where links exist
+        if 'Model' in opensource_df.columns:
+            opensource_df['Model'] = opensource_df['Model'].apply(
+                lambda x: hyperlinks["data"][x] if x in hyperlinks["data"] else x
+            )
+
         # Format the dataframe
         opensource_format_dict = {
             "Total Cost ($)": "${:,.4f}",
@@ -160,12 +169,21 @@ def per_request_pricing_page(sheet_name_to_df: dict[str, pd.DataFrame]):
         if "Billable Hours" in opensource_df.columns:
             opensource_format_dict["Billable Hours"] = "{:.2f}"
 
+        column_config = {}
+        if 'Model' in opensource_df.columns:
+            # Use LinkColumn with regex to extract model name from URL
+            column_config["Model"] = st.column_config.LinkColumn(
+                "Model",
+                display_text=r"^(?:https?://)?(?:[^/]+/)*(.+?)(?:\?.*)?$"
+            )
+
         st.dataframe(
             opensource_df.style.format(opensource_format_dict).highlight_min(
                 subset=["Total Cost ($)"], color='lightgreen'
             ),
             use_container_width=True,
-            hide_index=True
+            hide_index=True,
+            column_config=column_config if column_config else None
         )
     else:
         st.warning("No open-source pricing data available")

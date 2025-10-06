@@ -18,7 +18,7 @@ def prepare_performance_scores(performance_df: pd.DataFrame) -> tuple[dict, dict
     """
     scores = dict(zip(performance_df["Model"], performance_df["LMArena"]))
     scores_dict = {
-        k: round(v) if not math.isnan(v) else v
+        k: round(v) if (isinstance(v, (int, float)) and not math.isnan(v)) else v
         for k, v in scores.items()
     }
     categories_dict = dict(zip(performance_df["Model"], performance_df["Category"]))

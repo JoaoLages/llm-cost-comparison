@@ -8,6 +8,7 @@ from llm_cost_calculator.common import (
     calculate_min_vram,
     prepare_pricing_dataframe,
     filter_dataframe,
+    extract_hyperlinks_from_ods,
     PRICING_MODEL_MAPPING,
     REVERSE_PRICING_MODEL_MAPPING
 )
@@ -33,7 +34,11 @@ def always_on_hosting_page(sheet_name_to_df: dict[str, pd.DataFrame]):
     model_name_to_rows = {
         row["LLM"]: row
         for _, row in sheet_name_to_df["OpenSource-LLMs"].iterrows()
+        if pd.notna(row["LLM"]) and str(row["LLM"]).strip()
     }
+
+    # Extract hyperlinks from ODS file
+    hyperlinks = extract_hyperlinks_from_ods()
 
     # Load performance data for categories
     performance_df = sheet_name_to_df.get("Performance comparison")
@@ -131,7 +136,12 @@ def always_on_hosting_page(sheet_name_to_df: dict[str, pd.DataFrame]):
     valid_gpus = gpu_pricing_df[gpu_pricing_df["GPU total VRAM"] >= min_vram]
 
     # Display VRAM requirements and category
-    st.subheader(f"Minimum VRAM Requirements ({precision})")
+    # Add hyperlink to model name if available
+    if model_name in hyperlinks["data"]:
+        st.subheader(f"[{model_name}]({hyperlinks['data'][model_name]}) - Minimum VRAM Requirements ({precision})")
+    else:
+        st.subheader(f"{model_name} - Minimum VRAM Requirements ({precision})")
+
     col1, col2 = st.columns(2)
     with col1:
         st.metric("VRAM Required", f"{min_vram:.2f} GB")

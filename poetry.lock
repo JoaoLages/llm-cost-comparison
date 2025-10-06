@@ -199,6 +199,18 @@ files = [
 ]
 
 [[package]]
+name = "defusedxml"
+version = "0.7.1"
+description = "XML bomb protection for Python stdlib modules"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+groups = ["main"]
+files = [
+    {file = "defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61"},
+    {file = "defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69"},
+]
+
+[[package]]
 name = "et-xmlfile"
 version = "2.0.0"
 description = "An implementation of lxml.xmlfile for the standard library"
@@ -634,6 +646,20 @@ files = [
 rsa = ["cryptography (>=3.0.0)"]
 signals = ["blinker (>=1.4.0)"]
 signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
+
+[[package]]
+name = "odfpy"
+version = "1.4.1"
+description = "Python API and tools to manipulate OpenDocument files"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "odfpy-1.4.1.tar.gz", hash = "sha256:db766a6e59c5103212f3cc92ec8dd50a0f3a02790233ed0b52148b70d3c438ec"},
+]
+
+[package.dependencies]
+defusedxml = "*"
 
 [[package]]
 name = "openpyxl"
@@ -1501,4 +1527,4 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "eec01da7b79faf5a80e75b69bae82ebca2891e819288bf58e3cef7763e6cf8e7"
+content-hash = "4e4c6204fde07e908c0f8e0f34fc7ca99c6a8a8030bfaf5e327dfc71e2c2670b"
