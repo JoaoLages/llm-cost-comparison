@@ -4,7 +4,13 @@ import pandas as pd
 from typing import Optional, Literal
 
 from llm_cost_calculator.common.vram_calculator import calculate_min_vram
-from llm_cost_calculator.common.utils import PRICING_MODEL_MAPPING
+from llm_cost_calculator.common.utils import (
+    PRICING_MODEL_MAPPING,
+    HOURLY_PRICE_COLUMNS,
+    MONTHLY_PRICE_COLUMNS,
+    COL_ON_DEMAND_HOURLY,
+    COL_SPOT_HOURLY
+)
 from llm_cost_calculator.pages.per_request_pricing.throughput_estimator import estimate_tokens_per_sec, calculate_execution_time
 
 
@@ -201,19 +207,6 @@ def find_all_gpu_configs(
         )
 
         # Convert all prices to hourly rate first
-        HOURLY_PRICE_COLUMNS = {
-            "On-Demand Price/hr ($)",
-            "Spot Price/hr ($)",
-        }
-        MONTHLY_PRICE_COLUMNS = {
-            "On-Demand Price/month ($)",
-            "Spot Price/month ($)",
-            "Regular Provisioning Model (per month)\nNo subscription",
-            "Regular Provisioning Model (per month)\n1 year subscription",
-            "Regular Provisioning Model (per month)\n3 year subscription",
-            "Spot Provisioning Model (per month)",
-        }
-
         if price_column in HOURLY_PRICE_COLUMNS:
             hourly_rate = price_per_hour  # Already hourly
         elif price_column in MONTHLY_PRICE_COLUMNS:
@@ -273,13 +266,12 @@ def calculate_opensource_costs(
     # Define pricing columns to evaluate (column_name, policy_name)
     # Note: Some providers give hourly prices, others give monthly prices
     pricing_columns = [
-        ("On-Demand Price/hr ($)", "On-Demand"),
-        ("Spot Price/hr ($)", "Spot"),
+        (COL_ON_DEMAND_HOURLY, "On-Demand"),
+        (COL_SPOT_HOURLY, "Spot"),
     ]
 
     # Add monthly pricing columns using the shared mapping
     for policy_name, col_list in PRICING_MODEL_MAPPING.items():
-        # Add each column in the list
         for col in col_list:
             pricing_columns.append((col, policy_name))
 

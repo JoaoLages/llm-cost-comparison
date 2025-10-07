@@ -7,12 +7,36 @@ from pandas.api.types import (
     is_object_dtype,
 )
 
+# Column name constants - centralized to avoid duplication
+COL_ON_DEMAND_HOURLY = "On-Demand Price/hr ($)"
+COL_SPOT_HOURLY = "Spot Price/hr ($)"
+COL_ON_DEMAND_MONTHLY = "On-Demand Price/month ($)"
+COL_SPOT_MONTHLY = "Spot Price/month ($)"
+COL_REGULAR_NO_SUB = "Regular Provisioning Model (per month)No subscription"
+COL_REGULAR_1_YEAR = "Regular Provisioning Model (per month)1 year subscription"
+COL_REGULAR_3_YEAR = "Regular Provisioning Model (per month)3 year subscription"
+COL_SPOT_PROVISIONING = "Spot Provisioning Model (per month)"
+
+HOURLY_PRICE_COLUMNS = {
+    COL_ON_DEMAND_HOURLY,
+    COL_SPOT_HOURLY,
+}
+
+MONTHLY_PRICE_COLUMNS = {
+    COL_ON_DEMAND_MONTHLY,
+    COL_SPOT_MONTHLY,
+    COL_REGULAR_NO_SUB,
+    COL_REGULAR_1_YEAR,
+    COL_REGULAR_3_YEAR,
+    COL_SPOT_PROVISIONING,
+}
+
 # Pricing model mapping: policy name -> list of actual column names in spreadsheet
 PRICING_MODEL_MAPPING = {
-    "On-Demand": ["On-Demand Price/month ($)", "Regular Provisioning Model (per month)\nNo subscription"],
-    "Spot": ["Spot Price/month ($)", "Spot Provisioning Model (per month)"],
-    "1-Year Subscription": ["Regular Provisioning Model (per month)\n1 year subscription"],
-    "3-Year Subscription": ["Regular Provisioning Model (per month)\n3 year subscription"]
+    "On-Demand": [COL_ON_DEMAND_MONTHLY, COL_REGULAR_NO_SUB],
+    "Spot": [COL_SPOT_MONTHLY, COL_SPOT_PROVISIONING],
+    "1-Year Subscription": [COL_REGULAR_1_YEAR],
+    "3-Year Subscription": [COL_REGULAR_3_YEAR]
 }
 
 # Reverse mapping for display: actual column name -> policy name

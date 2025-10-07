@@ -7,7 +7,9 @@ from llm_cost_calculator.common import (
     get_pricing_policies,
     prepare_pricing_dataframe,
     filter_dataframe,
-    extract_hyperlinks_from_ods
+    extract_hyperlinks_from_ods,
+    HOURLY_PRICE_COLUMNS,
+    MONTHLY_PRICE_COLUMNS
 )
 from llm_cost_calculator.pages.per_request_pricing.data_utils import prepare_performance_scores
 from llm_cost_calculator.pages.per_request_pricing.cost_calculator import (
@@ -84,17 +86,7 @@ def per_request_pricing_page(sheet_name_to_df: dict[str, pd.DataFrame]):
     # Prepare GPU pricing dataframe
     gpu_pricing_df = prepare_pricing_dataframe(
         gpu_pricing_df,
-        [
-            "On-Demand Price/hr ($)",
-            "Spot Price/hr ($)",
-            "On-Demand Price/month ($)",
-            "Spot Price/month ($)",
-            "Regular Provisioning Model (per month)\nNo subscription",
-            "Regular Provisioning Model (per month)\n1 year subscription",
-            "Regular Provisioning Model (per month)\n3 year subscription",
-            "Spot Provisioning Model (per month)",
-            "GPU total VRAM"
-        ]
+        list(HOURLY_PRICE_COLUMNS | MONTHLY_PRICE_COLUMNS) + ["GPU total VRAM"]
     )
 
     # Calculate costs

@@ -10,7 +10,13 @@ from llm_cost_calculator.common import (
     filter_dataframe,
     extract_hyperlinks_from_ods,
     PRICING_MODEL_MAPPING,
-    REVERSE_PRICING_MODEL_MAPPING
+    REVERSE_PRICING_MODEL_MAPPING,
+    HOURLY_PRICE_COLUMNS,
+    MONTHLY_PRICE_COLUMNS,
+    COL_ON_DEMAND_HOURLY,
+    COL_SPOT_HOURLY,
+    COL_ON_DEMAND_MONTHLY,
+    COL_SPOT_MONTHLY
 )
 
 
@@ -103,35 +109,17 @@ def always_on_hosting_page(sheet_name_to_df: dict[str, pd.DataFrame]):
     gpu_pricing_df = sheet_name_to_df["GPU pricing comparison"]
 
     # Prepare GPU pricing dataframe
-    hourly_price_columns = [
-        "On-Demand Price/hr ($)",
-        "Spot Price/hr ($)",
-    ]
-    monthly_price_columns = [
-        "Regular Provisioning Model (per month)\nNo subscription",
-        "Regular Provisioning Model (per month)\n1 year subscription",
-        "Regular Provisioning Model (per month)\n3 year subscription",
-        "Spot Provisioning Model (per month)",
-    ]
-    all_columns = hourly_price_columns + monthly_price_columns + ["GPU total VRAM"]
+    all_columns = list(HOURLY_PRICE_COLUMNS | MONTHLY_PRICE_COLUMNS) + ["GPU total VRAM"]
     gpu_pricing_df = prepare_pricing_dataframe(gpu_pricing_df, all_columns)
 
     # Convert hourly prices to monthly (730 hours per month average)
-    if "On-Demand Price/hr ($)" in gpu_pricing_df.columns:
-        gpu_pricing_df["On-Demand Price/month ($)"] = pd.to_numeric(gpu_pricing_df["On-Demand Price/hr ($)"], errors='coerce') * 730
-    if "Spot Price/hr ($)" in gpu_pricing_df.columns:
-        gpu_pricing_df["Spot Price/month ($)"] = pd.to_numeric(gpu_pricing_df["Spot Price/hr ($)"], errors='coerce') * 730
+    if COL_ON_DEMAND_HOURLY in gpu_pricing_df.columns:
+        gpu_pricing_df[COL_ON_DEMAND_MONTHLY] = pd.to_numeric(gpu_pricing_df[COL_ON_DEMAND_HOURLY], errors='coerce') * 730
+    if COL_SPOT_HOURLY in gpu_pricing_df.columns:
+        gpu_pricing_df[COL_SPOT_MONTHLY] = pd.to_numeric(gpu_pricing_df[COL_SPOT_HOURLY], errors='coerce') * 730
 
     # Price columns to display (all monthly)
-    price_columns = [
-        "On-Demand Price/month ($)",
-        "Spot Price/month ($)",
-        "Regular Provisioning Model (per month)\nNo subscription",
-        "Regular Provisioning Model (per month)\n1 year subscription",
-        "Regular Provisioning Model (per month)\n3 year subscription",
-        "Spot Provisioning Model (per month)",
-        "GPU total VRAM"
-    ]
+    price_columns = list(MONTHLY_PRICE_COLUMNS) + ["GPU total VRAM"]
 
     valid_gpus = gpu_pricing_df[gpu_pricing_df["GPU total VRAM"] >= min_vram]
 
