@@ -3,11 +3,10 @@
 import pandas as pd
 import streamlit as st
 
-from llm_cost_calculator.common import (
+from llm_cost_calculator.common.data_loader import prepare_pricing_dataframe, extract_hyperlinks_from_ods
+from llm_cost_calculator.common.utils import (
     get_pricing_policies,
-    prepare_pricing_dataframe,
     filter_dataframe,
-    extract_hyperlinks_from_ods,
     HOURLY_PRICE_COLUMNS,
     MONTHLY_PRICE_COLUMNS
 )

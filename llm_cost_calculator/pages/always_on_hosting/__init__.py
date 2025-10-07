@@ -1,5 +1,3 @@
-"""Always-on hosting cost comparison page."""
-
-from llm_cost_calculator.pages.always_on_hosting.page import always_on_hosting_page
-
-__all__ = ["always_on_hosting_page"]
+# NOTE: This file is intentionally empty.
+# DO NOT add imports here. Import directly from source modules instead.
+# Everyone forgets to update __all__ and it becomes a maintenance burden.

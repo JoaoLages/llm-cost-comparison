@@ -15,9 +15,9 @@ from dotenv import load_dotenv
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from llm_cost_calculator.common import load_spreadsheet
-from llm_cost_calculator.pages.always_on_hosting import always_on_hosting_page
-from llm_cost_calculator.pages.per_request_pricing import per_request_pricing_page
+from llm_cost_calculator.common.data_loader import load_spreadsheet
+from llm_cost_calculator.pages.always_on_hosting.page import always_on_hosting_page
+from llm_cost_calculator.pages.per_request_pricing.page import per_request_pricing_page
 
 
 def main():

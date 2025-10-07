@@ -3,12 +3,11 @@
 import pandas as pd
 import streamlit as st
 
-from llm_cost_calculator.common import (
+from llm_cost_calculator.common.vram_calculator import calculate_min_vram
+from llm_cost_calculator.common.data_loader import prepare_pricing_dataframe, extract_hyperlinks_from_ods
+from llm_cost_calculator.common.utils import (
     get_pricing_policies,
-    calculate_min_vram,
-    prepare_pricing_dataframe,
     filter_dataframe,
-    extract_hyperlinks_from_ods,
     PRICING_MODEL_MAPPING,
     REVERSE_PRICING_MODEL_MAPPING,
     HOURLY_PRICE_COLUMNS,
